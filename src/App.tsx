@@ -17,7 +17,7 @@ function App() {
     async function fetchSong() {
       try {
         const response = await fetch("/api/recently-played", {
-         });
+        });
 
         if (!response.ok) {
           const data = await response.json()
@@ -64,14 +64,13 @@ function App() {
   return (
     loading ?
       <div>
-       <BounceLoader color='#1ed760' />
+        <BounceLoader color='#1ed760' loading className='loader' />
       </div>
-      : error ? 
+      : error ?
         <div>
           <p>{error}</p>
         </div>
         :
-
         <div className='container'>
           <h1>The Current Vibes...</h1>
           <div>
