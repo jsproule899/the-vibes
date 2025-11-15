@@ -1,19 +1,21 @@
 {
   "routes": [
     {
-      "route": "/api/*",
-      "methods": [
-        "get",
-        "post",
-        "put",
-        "delete",
-        "head",
-        "connect",
-        "options",
-        "trace",
-        "patch"
-      ],
-      "rewrite": "https://api.thevibes.fun/api/*"
+      "route": "/api/{*rest}",
+      "allowedRoles": ["anonymous"],
+      "proxy": {
+        "backendUri": "https://api.thevibes.fun/api/{rest}"
+      }
     }
-  ]
+  ],
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": [
+      "/api/*",
+      "/images/*.{png,jpg,gif}",
+      "/css/*",
+      "/assets/*",
+      "img/*"
+    ]
+  }
 }
