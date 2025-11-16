@@ -16,9 +16,9 @@
 }
 
 .artwork {
-  height: 20em;
-  width: 20em;
-  padding: 1.5em;
+  height: 20rem;
+  width: 20rem;
+  padding: 1.5rem;
   will-change: filter;
   transition: filter 300ms;
   max-width: 60vw;
@@ -32,13 +32,13 @@
   display: flex;
   flex-direction: column;
   border-radius: 0.5rem;
-  padding: 2em;
+  padding: 2rem;
   max-width: 400px;
   transition: filter 700ms;
 }
 
 .card:hover {
-  filter: drop-shadow(0 0 2em var(--spotify-green));
+  filter: drop-shadow(0 0 2rem var(--spotify-green));
 }
 
 a,
@@ -50,8 +50,16 @@ a:active {
 }
 
 .song-name {
+  width: 20rem;
+  max-width: 60vw;
   font-size: larger;
   margin: auto;
+}
+
+.artist {
+  max-width: 15rem;
+  font-size: medium;
+  margin: 1rem auto;
 }
 
 .song-length {
