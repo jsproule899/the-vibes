@@ -1,0 +1,49 @@
+.artwork {
+    height: 20rem;
+    width: 20rem;
+    padding: 1.5rem;
+    will-change: filter;
+    transition: filter 300ms;
+    max-width: 60vw;
+    max-height: 60vw;
+    aspect-ratio: 1/1;
+    border-radius: 30px;
+}
+
+.card {
+    background-color: #121212;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    max-width: 400px;
+    transition: filter 700ms;
+}
+
+.card:hover {
+    filter: drop-shadow(0 0 2rem var(--spotify-green));
+}
+
+.songName {
+    width: 20rem;
+    max-width: 60vw;
+    font-size: larger;
+    margin: auto;
+}
+
+.artist {
+    max-width: 15rem;
+    font-size: medium;
+    margin: 1rem auto;
+}
+
+.songLength {
+    font-size: smaller;
+    color: #888;
+}
+
+.logo {
+    border-radius: 50%;
+    height: 8vh;
+    fill: var(--spotify-green);
+}
