@@ -19,7 +19,7 @@
 body {
   margin: 0;
   display: flex;
-  min-width: 320px;
+  min-width: 100dvw;
 }
 
 h1 {
@@ -48,17 +48,3 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-
-  a:hover {
-    color: var(--spotify-green);
-  }
-
-  button {
-    background-color: #f9f9f9;
-  }
-}
