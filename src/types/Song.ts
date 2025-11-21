@@ -4,4 +4,5 @@ export type Song = {
     artworkUrl: string;
     length: number;
     spotifyUrl: string;
+    spotifyUri: string;
 }

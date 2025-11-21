@@ -27,7 +27,8 @@ function App() {
           artists: result.items[0].track.artists.map((artist: any) => artist.name),
           artworkUrl: result.items[0].track.album.images[0].url,
           length: result.items[0].track.duration_ms,
-          spotifyUrl: result.items[0].track.album.external_urls.spotify,
+          spotifyUrl: result.items[0].track.external_urls.spotify,
+          spotifyUri: result.items[0].track.uri,
         })
 
       } catch (err: any) {
@@ -61,9 +62,7 @@ function App() {
     <div className='container'>
       <h1 className='header'>The Current Vibes...</h1>
       <div>
-        <a href={song.spotifyUrl} target="_blank">
-          <Card song={song} />
-        </a>
+        <Card song={song} />
       </div>
     </div>
 

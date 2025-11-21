@@ -34,12 +34,13 @@
 .artist {
     max-width: 15rem;
     font-size: medium;
-    margin: 1rem auto;
+    margin: 0.5rem auto;
 }
 
 .songLength {
     font-size: smaller;
     color: #888;
+    margin: auto;
 }
 
 .logo {

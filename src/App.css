@@ -27,3 +27,7 @@ a:active {
   margin: 1.5rem auto;
   font-size: xx-large;
 }
+
+.hidden {
+  height: 0;
+}
