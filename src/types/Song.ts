@@ -5,4 +5,5 @@ export type Song = {
     length: number;
     spotifyUrl: string;
     spotifyUri: string;
+    played_at: string;
 }

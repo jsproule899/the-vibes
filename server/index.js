@@ -121,8 +121,11 @@ function callSpotifyApi(url, res) {
 
 
 app.get("/api/recently-played", (req, res) => {
+    const { before, limit = 1 } = req.query;
+    let queryString = `limit=${limit}`;
+    if (before) queryString += `&before=${before}`;
     callSpotifyApi(
-        "https://api.spotify.com/v1/me/player/recently-played?limit=1",
+        `https://api.spotify.com/v1/me/player/recently-played?${queryString}`,
         res
     );
 });

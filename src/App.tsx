@@ -1,46 +1,88 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import { BounceLoader } from 'react-spinners';
+import { BeatLoader, BounceLoader } from 'react-spinners';
 import type { Song } from './types/Song';
 import Card from './components/Card';
 
 function App() {
+  const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [showingPastVibes, setShowingPastVibes] = useState(false);
   const [error, setError] = useState("");
-  const [song, setSong] = useState<Song>();
+  const MAX_SONGS = 50;
 
   useEffect(() => {
-    async function fetchSong() {
-      try {
-        const response = await fetch("/api/recently-played", {
-        });
+    loadInitialSong();
+  }, []);
 
-        if (!response.ok) {
-          const data = await response.json()
-          throw new Error(`Error: ${response.status} : ${data.error.message}`);
-        }
+  useEffect(() => {
+    if (!showingPastVibes) return;
+    const marker = document.getElementById("load-more-marker");
+    if (!marker) return;
 
-        const result = await response.json();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) loadMoreSongs();
+      },
+      { rootMargin: "150px" }
+    );
 
-        setSong({
-          name: result.items[0].track.name,
-          artists: result.items[0].track.artists.map((artist: any) => artist.name),
-          artworkUrl: result.items[0].track.album.images[0].url,
-          length: result.items[0].track.duration_ms,
-          spotifyUrl: result.items[0].track.external_urls.spotify,
-          spotifyUri: result.items[0].track.uri,
-        })
+    observer.observe(marker);
+    return () => observer.disconnect();
+  }, [showingPastVibes, songs]);
 
-      } catch (err: any) {
-        setError(err.message)
-      }
-      finally {
-        setLoading(false);
-      }
+  async function loadInitialSong() {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/recently-played");
+      if (!response.ok) throw await response.json();
+      const result = await response.json();
+      const firstSong = result.items.map(mapItemToSong);
+      setSongs(firstSong);
+    } catch (err: any) {
+      setError(err.message || "Failed to fetch songs");
+    } finally {
+      setLoading(false);
     }
-    fetchSong();
-  }, [])
+  }
 
+  async function loadMoreSongs() {
+    if (loadingMore || songs.length >= MAX_SONGS) return;
+
+    try {
+      setLoadingMore(true);
+      const oldestPlayedAt = new Date(songs[songs.length - 1].played_at).getTime();
+      const response = await fetch(
+        `/api/recently-played?limit=10&before=${oldestPlayedAt}`
+      );
+      if (!response.ok) throw await response.json();
+      const result = await response.json();
+      const newSongs = result.items.map(mapItemToSong);
+      setSongs(prev => [...prev, ...newSongs]);
+    } catch (err: any) {
+      setError(err.message || "Failed to fetch more songs");
+    } finally {
+      setLoadingMore(false);
+    }
+  }
+
+  function mapItemToSong(item: any): Song {
+    return {
+      name: item.track.name,
+      artists: item.track.artists.map((a: any) => a.name),
+      artworkUrl: item.track.album.images[0].url,
+      length: item.track.duration_ms,
+      spotifyUrl: item.track.external_urls.spotify,
+      spotifyUri: item.track.uri,
+      played_at: item.played_at,
+    }
+  }
+
+  function handleShowPastVibes() {
+    setShowingPastVibes(true);
+    loadMoreSongs();
+  }
 
   if (loading) return (
     <BounceLoader color='#1ed760' loading className='loader' />
@@ -52,7 +94,7 @@ function App() {
     </div>
   );
 
-  if (!song) return (
+  if (songs.length === 0) return (
     <div>
       <p>Can't get vibes at the moment</p>
     </div>
@@ -61,11 +103,15 @@ function App() {
   return (
     <div className='container'>
       <h1 className='header'>The Current Vibes...</h1>
-      <div>
-        <Card song={song} />
+      <div className='songsList'>
+        {
+          songs.map((song) => <Card key={song.spotifyUri} song={song} />)
+        }
       </div>
+      {!showingPastVibes && <p className='actionText' onClick={handleShowPastVibes}>Past Vibes...</p>}
+      <div id="load-more-marker" />
+      {loadingMore && <BeatLoader color='#1ed760' loading={loadingMore} />}
     </div>
-
   )
 }
 
