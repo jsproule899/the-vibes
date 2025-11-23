@@ -1,10 +1,10 @@
 {
   "routes": [
     {
-      "route": "/api/{*rest}",
+      "route": "/api/*",
       "allowedRoles": ["anonymous"],
       "proxy": {
-        "backendUri": "https://api.thevibes.fun/api/{rest}"
+        "backendUri": "https://api.thevibes.fun/api/{*}"
       }
     }
   ],
