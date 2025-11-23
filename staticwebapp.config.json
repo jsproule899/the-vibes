@@ -12,10 +12,12 @@
     "rewrite": "/index.html",
     "exclude": [
       "/api/*",
-      "/images/*.{png,jpg,gif}",
+      "/images/*.png",
+      "/images/*.jpg",
+      "/images/*.gif",
       "/css/*",
       "/assets/*",
-      "img/*"
+      "/img/*"
     ]
   }
 }
