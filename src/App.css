@@ -19,7 +19,7 @@ a,
 a:visited,
 a:hover,
 a:active {
-  color: inherit;
+  color: var(--spotify-green);
   text-decoration: none;
 }
 
@@ -30,4 +30,13 @@ a:active {
 
 .hidden {
   height: 0;
+}
+
+
+.actionText{
+  font-weight: bold;
+}
+.actionText:hover {
+  color: var(--spotify-green);
+  cursor: pointer;
 }

@@ -16,12 +16,12 @@
     flex-direction: column;
     border-radius: 0.5rem;
     padding: 2rem 0.5rem;
-    margin: auto;
+    margin: 2rem auto;
     transition: filter 700ms;
 }
 
 .card:hover {
-    filter: drop-shadow(0 0 2rem var(--spotify-green));
+    filter: drop-shadow(0 0 1rem var(--spotify-green));
 }
 
 .songName {

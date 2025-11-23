@@ -1,98 +1,65 @@
 import { useEffect, useRef, useState } from "react";
 import { FaPauseCircle, FaPlayCircle } from "react-icons/fa";
 import styles from './Player.module.css'
+import { loadSpotifyIframeAPI } from "../lib/spotify/spotifyApiLoader";
+import { registerActiveController } from "../lib/spotify/spotifyPlaybackManager";
+import type { SpotifyEmbedController } from "../types/SpotifyIframe";
 
-type SpotifyIframeApi = {
-    createController: (
-        element: HTMLElement,
-        options: { uri: string; width: string; height: string },
-        callback: (controller: SpotifyEmbedController) => void
-    ) => void;
-};
-
-type SpotifyEmbedController = {
-    addListener: (event: string, cb: (e: any) => void) => void;
-    removeListener: (event: string) => void;
-    togglePlay: () => void;
-    iframeElement: HTMLIFrameElement;
-};
 
 function Player({ uri, formatLength }: { uri: string, formatLength: (arg: number) => string }) {
-    const [iFrameAPI, setIFrameAPI] = useState<SpotifyIframeApi | null>(null);
-    const [playerLoaded, setPlayerLoaded] = useState(false);
+    const [controller, setController] = useState<SpotifyEmbedController | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [duration, setDuration] = useState(30 * 1000);
     const [position, setPosition] = useState(0);
 
     const embedRef = useRef<HTMLDivElement | null>(null);
-    const spotifyEmbedControllerRef = useRef<SpotifyEmbedController | null>(null);
 
     useEffect(() => {
-        const script = document.createElement("script");
-        script.src = "https://open.spotify.com/embed/iframe-api/v1";
-        script.async = true;
-        document.body.appendChild(script);
-        return () => {
-            document.body.removeChild(script);
-        };
-    }, []);
+        let mounted = true;
+        let localController: SpotifyEmbedController | null = null;
 
-    useEffect(() => {
+        loadSpotifyIframeAPI().then((api) => {
+            if (!mounted || !embedRef.current) return;
 
-        if (iFrameAPI) return;
+            api.createController(
+                embedRef.current,
+                { width: "100%", height: "80px", uri },
+                (ctrl: SpotifyEmbedController) => {
+                    localController = ctrl;
 
-        (window as any).window.onSpotifyIframeApiReady = (api: SpotifyIframeApi) => {
-            setIFrameAPI(api);
-        };
-    }, [iFrameAPI]);
+                    ctrl.addListener("ready", () => {
+                        if (!mounted) return;
+                        ctrl.iframeElement.style.borderRadius = "14px";
+                    });
 
-    useEffect(() => {
-        if (playerLoaded || !iFrameAPI || !embedRef.current) {
-            return;
-        }
+                    ctrl.addListener("playback_update", (e) => {
+                        if (!mounted) return;
+                        const { isPaused, duration, position } = e.data;
+                        setIsPlaying(!isPaused);
+                        setDuration(duration);
+                        setPosition(position);
+                        position === duration && setIsPlaying(false);
+                        position === duration && setPosition(0);
 
-        iFrameAPI.createController(
-            embedRef.current,
-            {
-                width: "100%",
-                height: "80px",
-                uri
-            },
-            (controller: SpotifyEmbedController) => {
-                controller.addListener("ready", () => {
-                    setPlayerLoaded(true);
-                    controller.iframeElement.style.borderRadius = "14px";
-                });
+                        if (!isPaused) {
+                            registerActiveController(ctrl);
+                        }
+                    });
 
-                controller.addListener("playback_update", (e) => {
-                    const { isPaused, position, duration } = e.data;
-                    setIsPlaying(!isPaused);
-                    setDuration(duration);
-                    setPosition(position);
-                    position === duration && setIsPlaying(false)
-                    position === duration && setPosition(0);
-                });
+                    ctrl.iframeElement.classList.add('hidden');
 
-                controller.addListener("playback_started", (e) => {
-                    const { playingURI } = e.data;
-                    console.log(`The playback has started for: ${playingURI}`);
-                });
-
-                spotifyEmbedControllerRef.current = controller;
-                controller.iframeElement.classList.add("hidden");
-            }
-        );
-
+                    setController(ctrl);
+                }
+            );
+        });
 
         return () => {
-            spotifyEmbedControllerRef.current?.removeListener("playback_update");
+            mounted = false;
+            localController?.removeListener("playback_update");
         };
+    }, [uri]);
 
-    }, [playerLoaded, iFrameAPI, uri]);
-
-    const onPlayClick = async () => {
-        spotifyEmbedControllerRef.current?.togglePlay();
-    };
+    const togglePlay = () => controller?.togglePlay();
 
     return (
         <>
@@ -100,7 +67,7 @@ function Player({ uri, formatLength }: { uri: string, formatLength: (arg: number
             <div className={styles.container}>
 
                 <div className={styles.playBtn}>
-                    {isPlaying ? <FaPauseCircle aria-label="Play" onClick={onPlayClick} size={"3rem"} /> : <FaPlayCircle aria-label="Play" onClick={onPlayClick} size={"3rem"} />}
+                    {isPlaying ? <FaPauseCircle aria-label="Play" onClick={togglePlay} size={"3rem"} /> : <FaPlayCircle aria-label="Play" onClick={togglePlay} size={"3rem"} />}
                 </div>
 
                 <div className={styles.progressContainer}>
