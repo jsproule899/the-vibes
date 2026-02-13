@@ -1,5 +1,6 @@
 import express from "express";
 import request from "request";
+import cors from "cors";
 import dotenv from "dotenv";
 import fs from "fs";
 dotenv.config();
@@ -19,6 +20,11 @@ function loadRefreshToken() {
     if (!fs.existsSync("refresh.json")) return null;
     return JSON.parse(fs.readFileSync("refresh.json")).refresh_token;
 }
+
+app.use(cors({
+    origin: process.env.ALLOWED_ORIGINS.split(",") || "",
+    credentials: true,
+}));
 
 app.get("/login", (req, res) => {
     const scope = "user-read-recently-played user-read-playback-state";
